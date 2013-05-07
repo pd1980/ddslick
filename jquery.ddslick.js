@@ -158,7 +158,7 @@
 
                 //Add ddOptions to the container. Replace with template engine later.
                 $.each(options.data, function (index, item) {
-                    if (item.selected) options.defaultSelectedIndex = index;
+                    if (item.selected && item.value)	options.defaultSelectedIndex = getActualSelectedIndex(original, item.value);
                     ddOptions.append('<li class="index-' + item.type + '">' +
                         '<a class="dd-' + item.type + '">' +
                         	(item.value ? ' <input class="dd-option-value" type="hidden" value="' + item.value + '" />' : '') +
@@ -198,13 +198,8 @@
 
                 //Selecting an option
                 obj.find('.dd-option').bind('click.ddslick', function () {
-                	var optionsArr = [], selectedIndex;
-                	$(this).closest('.answers').find('select option').each(function(){
-                		optionsArr.push($(this).val());
-                	});
-                	selectedIndex = optionsArr.indexOf($(this).find('.dd-option-value').val());
-                	selectedIndex = (selectedIndex < 0 ) ? 0 : selectedIndex;
-                    selectIndex(obj, selectedIndex);
+                	var index = getActualSelectedIndex($(this).closest('.answers').find('select'), $(this).find('.dd-option-value').val());
+                    selectIndex(obj, index);
                 });
 
                 //Click anywhere to close
@@ -266,6 +261,17 @@
 //                obj.css('display','none');
             }
         });
+    }
+    
+    //Private: Find Actual Selected index from value (to work with select object that has optgroup)
+    function getActualSelectedIndex(selObj, val) {
+    	var optionsArr = [], selectedIndex;
+    	selObj.find('option').each(function(){
+    		optionsArr.push($(this).val());
+    	});
+    	selectedIndex = optionsArr.indexOf(val);
+    	selectedIndex = (selectedIndex < 0 ) ? 0 : selectedIndex;
+    	return selectedIndex;
     }
 
     //Private: Select index
